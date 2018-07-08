@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,13 @@ public class Application {
 	@JsonFilter("responseFilter")
 	@Data
 	class Response {
-		@NonNull
+
 		private String field1, field2, field3;
+
+		public Response(String field1, String field2, String field3) {
+			this.field1 = field1;
+			this.field2 = field2;
+			this.field3 = field3;
+		}
 	}
 }
