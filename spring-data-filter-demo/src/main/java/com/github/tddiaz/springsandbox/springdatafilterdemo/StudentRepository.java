@@ -1,6 +1,7 @@
 package com.github.tddiaz.springsandbox.springdatafilterdemo;
 
 import lombok.AllArgsConstructor;
+import org.hibernate.criterion.MatchMode;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -38,7 +39,7 @@ public class StudentRepository {
             final List<Predicate> predicates = new ArrayList<>();
 
             if (Objects.nonNull(searchCriteria.getName())) {
-                predicates.add(criteriaBuilder.like(root.get("name"), searchCriteria.getName()));
+                predicates.add(criteriaBuilder.like(root.get("name"), MatchMode.ANYWHERE.toMatchString(searchCriteria.getName())));
             }
 
             if (Objects.nonNull(searchCriteria.getBirthDate())) {
@@ -58,7 +59,7 @@ public class StudentRepository {
                 predicates.add(criteriaBuilder.between(root.get("age"), ageRange.getMin(), ageRange.getMax()));
             }
 
-            Predicate predicate = criteriaBuilder.disjunction();
+            Predicate predicate = criteriaBuilder.conjunction();
             predicate.getExpressions().addAll(predicates);
 
             query.where(predicate);

@@ -17,7 +17,7 @@ public class SearchCriteria {
 
     private String name;
     private LocalDate birthDate;
-    private int age;
+    private Integer age;
     private Level level;
     private AgeRange ageRange;
 
