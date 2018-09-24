@@ -70,7 +70,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(3);
@@ -89,7 +89,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(2);
@@ -108,7 +108,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(7);
@@ -126,7 +126,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(1);
@@ -145,7 +145,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(4);
@@ -165,7 +165,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(2);
@@ -186,7 +186,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).isEmpty();
@@ -207,7 +207,7 @@ public class WebIntegrationTest {
                     .contentType(ContentType.JSON)
                     .body(searchCriteria)
                     .when()
-                    .get("/students").andReturn();
+                    .get("/employees").andReturn();
 
             List<Student> students = OBJECT_MAPPER.readValue(response.getBody().asString(), List.class);
             assertThat(students).hasSize(1);

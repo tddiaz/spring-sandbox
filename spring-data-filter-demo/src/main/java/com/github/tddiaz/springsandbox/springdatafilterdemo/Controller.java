@@ -17,7 +17,7 @@ public class Controller {
 
     private final StudentRepository studentRepository;
 
-    @GetMapping("/students")
+    @GetMapping("/employees")
     public ResponseEntity<List<Student>> findAll(@RequestBody SearchCriteria searchCriteria) {
         return ResponseEntity.ok(studentRepository.loadStudents(searchCriteria));
     }

@@ -16,14 +16,14 @@ public class Department {
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "departmentId")
-    private List<Student> students;
+    private List<Employee> employees;
 
-    public void addStudent(Student student) {
-        if (Objects.isNull(students)) {
-            students = new ArrayList<>();
+    public void addStudent(Employee employee) {
+        if (Objects.isNull(employees)) {
+            employees = new ArrayList<>();
         }
 
-        students.add(student);
+        employees.add(employee);
     }
 }
 
