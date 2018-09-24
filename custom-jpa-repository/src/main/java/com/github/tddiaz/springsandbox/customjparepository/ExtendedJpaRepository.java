@@ -13,6 +13,7 @@ public class ExtendedJpaRepository<T, ID extends Serializable> extends SimpleJpa
 
     public ExtendedJpaRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
         super(entityInformation, entityManager);
+        this.entityManager = entityManager;
     }
 
     @Override
