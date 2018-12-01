@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: reactive-web-mongo
+  data:
+    mongodb:
+      host: localhost
+      database: reactive_web_mongo
+      port: 27017

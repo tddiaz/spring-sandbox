@@ -2,11 +2,12 @@ package com.github.tddiaz.reactivewebmongo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
-public class ReactiveWebMongoApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ReactiveWebMongoApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }
