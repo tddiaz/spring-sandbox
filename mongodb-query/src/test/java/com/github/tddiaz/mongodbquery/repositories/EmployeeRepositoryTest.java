@@ -2,6 +2,7 @@ package com.github.tddiaz.mongodbquery.repositories;
 
 import com.github.tddiaz.mongodbquery.domain.Department;
 import com.github.tddiaz.mongodbquery.domain.Employee;
+import com.mongodb.BasicDBObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -19,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @Slf4j
@@ -98,7 +102,34 @@ public class EmployeeRepositoryTest {
 
     @Test
     public void testQueryAggregation() {
+
+        LookupOperation lookupOperation = LookupOperation.newLookup().
+                from("departments").
+                localField("id").
+                foreignField("departmentId").
+                as("department");
+
+        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("department.type").is(Department.Type.X));
+
+        Aggregation aggregation = Aggregation.newAggregation(departmentIdMatchOperation, lookupOperation);
+
+        List<Employee> employees = mongoTemplate.aggregate(aggregation, "employees", Employee.class).getMappedResults();
         // TODO
+
+        assertEquals(3, employees.size());
+
+//        LookupOperation lookupOperation = LookupOperation.newLookup().
+//                from("posts").
+//                localField("userid").
+//                foreignField("authors").
+//                as("post");
+//
+//        AggregationOperation match = Aggregation.match(Criteria.where("post").size(1));
+//
+//
+//        Aggregation aggregation = Aggregation.newAggregation(lookupOperation, match);
+//
+//        List<BasicDBObject> results = mongoOperation.aggregate(aggregation, "users", BasicDBObject.class).getMappedResults();
     }
 
 
