@@ -1,8 +1,9 @@
 package com.github.tddiaz.mongodbquery.repositories;
 
 import com.github.tddiaz.mongodbquery.domain.Department;
+import com.github.tddiaz.mongodbquery.domain.DepartmentEntity;
 import com.github.tddiaz.mongodbquery.domain.Employee;
-import com.mongodb.BasicDBObject;
+import com.github.tddiaz.mongodbquery.domain.EmployeeEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,10 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.LookupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,17 +40,15 @@ public class EmployeeRepositoryTest {
     @Before
     public void setup() {
 
-        Department departmentX = departmentRepository.save(new Department(Department.Type.X));
-        Department departmentY = departmentRepository.save(new Department(Department.Type.Y));
-
-        departmentRepository.saveAll(Arrays.asList(departmentX, departmentY));
+        DepartmentEntity departmentX = departmentRepository.save(new DepartmentEntity(new Department("1", Department.Type.X)));
+        DepartmentEntity departmentY = departmentRepository.save(new DepartmentEntity(new Department("2", Department.Type.Y)));
 
         log.info("department count: {}", departmentRepository.count());
 
-        employeeRepository.save(new Employee("barry", 25, departmentX.getId()));
-        employeeRepository.save(new Employee("cisco", 25, departmentX.getId()));
-        employeeRepository.save(new Employee("caitlin", 25, departmentX.getId()));
-        employeeRepository.save(new Employee("harrison", 40, departmentY.getId()));
+        employeeRepository.save(new EmployeeEntity(new Employee("1", "barry", 25, departmentX.getDepartment().getRef())));
+        employeeRepository.save(new EmployeeEntity(new Employee("2", "cisco", 25, departmentX.getDepartment().getRef())));
+        employeeRepository.save(new EmployeeEntity(new Employee("3", "caitlin", 25, departmentX.getDepartment().getRef())));
+        employeeRepository.save(new EmployeeEntity(new Employee("4", "harrison", 40, departmentY.getDepartment().getRef())));
 
         log.info("employee count: {}", employeeRepository.count());
 
@@ -101,35 +97,64 @@ public class EmployeeRepositoryTest {
     }
 
     @Test
-    public void testQueryAggregation() {
+    public void testFindEmployeesWithinDepartmentTypeX() {
 
         LookupOperation lookupOperation = LookupOperation.newLookup().
                 from("departments").
-                localField("id").
-                foreignField("departmentId").
-                as("department");
+                localField("employee.deptRef").
+                foreignField("department.ref").
+                as("dprt");
 
-        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("department.type").is(Department.Type.X));
+        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
+        ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
 
-        Aggregation aggregation = Aggregation.newAggregation(departmentIdMatchOperation, lookupOperation);
+        Aggregation aggregation = Aggregation.newAggregation(lookupOperation, departmentIdMatchOperation, projectionOperation);
 
-        List<Employee> employees = mongoTemplate.aggregate(aggregation, "employees", Employee.class).getMappedResults();
-        // TODO
+        List<EmployeeEntity> employees = mongoTemplate.aggregate(aggregation, "employees", EmployeeEntity.class).getMappedResults();
 
         assertEquals(3, employees.size());
+    }
 
-//        LookupOperation lookupOperation = LookupOperation.newLookup().
-//                from("posts").
-//                localField("userid").
-//                foreignField("authors").
-//                as("post");
-//
-//        AggregationOperation match = Aggregation.match(Criteria.where("post").size(1));
-//
-//
-//        Aggregation aggregation = Aggregation.newAggregation(lookupOperation, match);
-//
-//        List<BasicDBObject> results = mongoOperation.aggregate(aggregation, "users", BasicDBObject.class).getMappedResults();
+    @Test
+    public void testFindEmployeeWithNameWithinDepartmentTypeX() {
+
+        AggregationOperation employeeNameOperation = Aggregation.match(Criteria.where("employee.name").is("barry"));
+
+        LookupOperation lookupOperation = LookupOperation.newLookup().
+                from("departments").
+                localField("employee.deptRef").
+                foreignField("department.ref").
+                as("dprt");
+
+        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
+        ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
+
+        Aggregation aggregation = Aggregation.newAggregation(employeeNameOperation, lookupOperation, departmentIdMatchOperation, projectionOperation);
+
+        List<EmployeeEntity> employees = mongoTemplate.aggregate(aggregation, "employees", EmployeeEntity.class).getMappedResults();
+
+        assertEquals(1, employees.size());
+    }
+
+    @Test
+    public void testFindEmployeesWithLessThanAgeWithinDepartmentTypeX() {
+
+        AggregationOperation employeeAgeOperation = Aggregation.match(Criteria.where("employee.age").lt(40));
+
+        LookupOperation lookupOperation = LookupOperation.newLookup().
+                from("departments").
+                localField("employee.deptRef").
+                foreignField("department.ref").
+                as("dprt");
+
+        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
+        ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
+
+        Aggregation aggregation = Aggregation.newAggregation(lookupOperation, departmentIdMatchOperation, employeeAgeOperation, projectionOperation, employeeAgeOperation);
+
+        List<EmployeeEntity> employees = mongoTemplate.aggregate(aggregation, "employees", EmployeeEntity.class).getMappedResults();
+
+        assertEquals(3, employees.size());
     }
 
 

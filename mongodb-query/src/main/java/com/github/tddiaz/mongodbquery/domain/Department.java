@@ -1,19 +1,15 @@
 package com.github.tddiaz.mongodbquery.domain;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "departments")
 public class Department {
 
-    @Id
-    private String id;
-
+    private String ref;
     private Type type;
 
-    public Department(Type type) {
+    public Department(String ref, Type type) {
+        this.ref = ref;
         this.type = type;
     }
 

@@ -45,7 +45,7 @@ public class CategoryControllerTest {
         when(categoryMongoRepository.findById(anyString())).thenReturn(Mono.just(new Category("test1")));
 
         webTestClient.get()
-                .uri("/categories/test-id")
+                .uri("/categories/test-depRef")
                 .exchange().expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.name", equalTo("test1"));

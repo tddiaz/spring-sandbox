@@ -4,19 +4,18 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "employees")
 @Data
 public class Employee {
 
-    @Id
-    private String id;
+    private String ref;
     private String name;
     private int age;
-    private String departmentId;
+    private String deptRef;
 
-    public Employee(String name, int age, String departmentId) {
+    public Employee(String ref, String name, int age, String deptRef) {
         this.name = name;
         this.age = age;
-        this.departmentId = departmentId;
+        this.deptRef = deptRef;
+        this.ref = ref;
     }
 }
