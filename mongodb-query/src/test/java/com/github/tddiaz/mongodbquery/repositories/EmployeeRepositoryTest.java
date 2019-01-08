@@ -12,12 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -105,6 +108,7 @@ public class EmployeeRepositoryTest {
                 foreignField("department.ref").
                 as("dprt");
 
+        // sort_by='status' -> 'lg.status'
         AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
         ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
 
@@ -141,20 +145,51 @@ public class EmployeeRepositoryTest {
 
         AggregationOperation employeeAgeOperation = Aggregation.match(Criteria.where("employee.age").lt(40));
 
+//        LookupOperation lookupOperation = LookupOperation.newLookup().
+//                from("departments").
+//                localField("employee.deptRef").
+//                foreignField("department.ref").
+//                as("dprt");
+//
+//        AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
+//        ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
+//
+        List<AggregationOperation> aggregationOperations = new ArrayList<>();
+        aggregationOperations.add(employeeAgeOperation);
+        aggregationOperations.addAll(aggerateForDepartmentType());
+
+        Aggregation aggregation = Aggregation.newAggregation(aggregationOperations);
+
+        List<EmployeeEntity> employees = mongoTemplate.aggregate(aggregation, "employees", EmployeeEntity.class).getMappedResults();
+
+        assertEquals(3, employees.size());
+    }
+
+    public void testRequest(Map<String, String> requests) {
+
+        List<AggregationOperation> aggregationOperations = new ArrayList<>();
+
+        requests.forEach((key, value) -> {
+            aggregationOperations.addAll(LgRequestParam.OPS_MAP.get(key));
+        });
+
+        Aggregation aggregation = Aggregation.newAggregation(aggregationOperations);
+    }
+
+
+
+
+    private List<AggregationOperation> aggerateForDepartmentType() {
+
         LookupOperation lookupOperation = LookupOperation.newLookup().
                 from("departments").
                 localField("employee.deptRef").
                 foreignField("department.ref").
                 as("dprt");
-
         AggregationOperation departmentIdMatchOperation = Aggregation.match(Criteria.where("dprt.department.type").is("X"));
         ProjectionOperation projectionOperation = new ProjectionOperation().andExclude("dprt");
 
-        Aggregation aggregation = Aggregation.newAggregation(lookupOperation, departmentIdMatchOperation, employeeAgeOperation, projectionOperation, employeeAgeOperation);
-
-        List<EmployeeEntity> employees = mongoTemplate.aggregate(aggregation, "employees", EmployeeEntity.class).getMappedResults();
-
-        assertEquals(3, employees.size());
+        return Arrays.asList(lookupOperation, departmentIdMatchOperation, projectionOperation);
     }
 
 
